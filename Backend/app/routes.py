@@ -4,8 +4,8 @@ import os
 from flask import Blueprint, request, jsonify
 from app.services.process import process_pdf_to_chroma
 from app.services.vector_db.db_handler import query_vector_db
-# from app.services.get_embedding_function import get_embedding_function # Not directly used in routes
 from app.services.analysis_service import analyze_patent, model as analysis_model # Import the Gemini model
+# from app.services.get_embedding_function import get_embedding_function # Not directly used in routes 
 
 routes = Blueprint('routes', __name__)
 UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")

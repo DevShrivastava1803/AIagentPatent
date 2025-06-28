@@ -139,14 +139,7 @@ def analyze_patent(document_id: str) -> Optional[Dict]:
         print(f"Error analyzing document {document_id}: {e}")
         # import traceback; traceback.print_exc() # For detailed debugging
         return None
-            "date": metadata.get("date", "Unknown Date"),
-            "applicant": metadata.get("applicant", "Unknown Applicant"),
-            "summary": generate_summary(text),
-            "noveltyScore": score_novelty(text),
-            "potentialIssues": find_issues(text),
-            "recommendations": suggest_improvements(text),
-            "similarPatents": find_similar_patents(text),
-        }
-    except Exception as e:
-        print(f"Error analyzing document: {e}")
-        return None
+
+    # except Exception as e:
+    #     print(f"Error analyzing document: {e}")
+    #     return None

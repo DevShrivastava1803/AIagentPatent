@@ -1,6 +1,9 @@
 import os
+from dotenv import load_dotenv
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
+# Load environment variables from .env file
+load_dotenv()
 def get_embedding_function():
     """
     Returns Google Gemini embedding function.
