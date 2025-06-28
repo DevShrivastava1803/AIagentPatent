@@ -13,9 +13,10 @@ def calculate_chunk_ids(chunks):
     updated_chunks = []
 
     for chunk in chunks:
-        source = chunk.metadata.get("source", "unknown")
+        source_full_path = chunk.metadata.get("source", "unknown")
+        filename_base = os.path.basename(source_full_path)
         page = chunk.metadata.get("page", "0")
-        current_page_id = f"{source}:{page}"
+        current_page_id = f"{source_full_path}:{page}" # Keep original source for page ID if needed
 
         if current_page_id == last_page_id:
             current_chunk_index += 1
@@ -25,9 +26,16 @@ def calculate_chunk_ids(chunks):
         chunk_id = f"{current_page_id}:{current_chunk_index}"
         last_page_id = current_page_id
 
+        # Add filename_base to metadata for easier querying by basename
+        new_metadata = {
+            **chunk.metadata,
+            "id": chunk_id,
+            "filename_base": filename_base
+        }
+
         updated_chunks.append(Document(
             page_content=chunk.page_content,
-            metadata={**chunk.metadata, "id": chunk_id}
+            metadata=new_metadata
         ))
 
     return updated_chunks
@@ -69,4 +77,5 @@ def process_pdf_to_chroma(pdf_filename: str):
     else:
         print("✔️ No new chunks to add. ChromaDB is up-to-date.")
 
-
+    # Return the basename of the PDF file, which can serve as a document_id
+    return os.path.basename(pdf_filename)

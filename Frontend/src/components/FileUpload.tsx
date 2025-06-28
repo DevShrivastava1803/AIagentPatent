@@ -7,7 +7,8 @@ import { useToast } from "@/components/ui/use-toast";
 import axios from "axios";
 
 interface FileUploadProps {
-  onFileProcessed: (fileData: { name: string; size: number; status: string }) => void;
+  // Updated to expect document_id from the backend response
+  onFileProcessed: (fileData: { name: string; size: number; document_id: string }) => void;
 }
 
 export default function FileUpload({ onFileProcessed }: FileUploadProps) {
@@ -86,14 +87,47 @@ export default function FileUpload({ onFileProcessed }: FileUploadProps) {
         },
       });
 
-      setUploadStatus("success");
-      onFileProcessed({
-        name: file.name,
-        size: file.size,
-        status: "processed",
-      });
+      // Assuming backend response now includes document_id:
+      // e.g., { message: "...", document_id: "..." }
+      const responseData = response.data;
 
+      if (responseData && responseData.document_id) {
+        setUploadStatus("success");
+        onFileProcessed({
+          name: file.name,
+          size: file.size,
+          document_id: responseData.document_id, // Pass document_id
+        });
+        toast({
+          title: "Upload complete",
+          description: `Your patent file has been successfully processed. Document ID: ${responseData.document_id}`,
+        });
+      } else {
+        // Handle case where document_id is missing in response
+        setUploadStatus("error");
+        toast({
+          variant: "destructive",
+          title: "Upload succeeded but no Document ID received",
+          description: "Could not get document identifier from the server.",
+        });
+      }
+    } catch (error: any) { // Added type annotation for error
+      setUploadStatus("error");
+      let errorMsg = "An error occurred during the upload. Please try again.";
+      if (error.response && error.response.data && error.response.data.error) {
+        errorMsg = error.response.data.error;
+      } else if (error.message) {
+        errorMsg = error.message;
+      }
       toast({
+        variant: "destructive",
+        title: "Upload failed",
+        description: errorMsg,
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
         title: "Upload complete",
         description: `Your patent file has been successfully processed.`,
       });
