@@ -8,15 +8,12 @@ def load_and_split_pdf(pdf_filename: str):
     Loads a PDF document from the `data` folder and splits it into smaller chunks.
     Returns a list of LangChain Document objects.
     """
-    # Build full path to PDF
-    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
-    pdf_path = os.path.join(base_dir, pdf_filename)
-
-    if not os.path.exists(pdf_path):
-        raise FileNotFoundError(f"ERROR: File not found at {pdf_path}")
+    # The pdf_filename argument is expected to be the full path to the PDF.
+    if not os.path.exists(pdf_filename):
+        raise FileNotFoundError(f"ERROR: File not found at {pdf_filename}")
 
     # Load and split
-    loader = PyPDFLoader(pdf_path)
+    loader = PyPDFLoader(pdf_filename) # Use pdf_filename directly
     documents = loader.load()
 
     text_splitter = RecursiveCharacterTextSplitter(

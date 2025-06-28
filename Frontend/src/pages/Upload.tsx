@@ -14,22 +14,28 @@ const Upload = () => {
   const [processedFile, setProcessedFile] = useState<{
     name: string;
     size: number;
-    status: string;
+    document_id: string; // Changed from status to document_id
   } | null>(null);
 
   const handleFileProcessed = (fileData: {
     name: string;
     size: number;
-    status: string;
+    document_id: string; // Changed from status to document_id
   }) => {
-    setProcessedFile(fileData);
+    setProcessedFile(fileData); // Store full fileData including document_id
     setCurrentStep(2);
     
-    // Simulate processing completion and redirect to analysis
+    // Simulate processing completion and redirect to analysis with document_id
     setTimeout(() => {
       setCurrentStep(3);
       setTimeout(() => {
-        navigate("/analysis");
+        if (fileData.document_id) {
+          navigate(`/analysis/${fileData.document_id}`);
+        } else {
+          // Handle error: document_id not available, maybe show a toast
+          console.error("Document ID not available after processing for navigation.");
+          // Optionally navigate to a generic error page or show an error toast
+        }
       }, 1500);
     }, 3000);
   };
