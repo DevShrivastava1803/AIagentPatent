@@ -1,0 +1,23 @@
+# Flask and web framework
+Flask==3.0.0
+Flask-CORS==4.0.0
+
+# AI and ML libraries
+google-generativeai==0.8.3
+langchain==0.2.0
+langchain-google-genai==0.2.0
+langchain-chroma==0.2.0
+
+# Vector database
+chromadb==0.4.22
+
+# Document processing
+PyPDF2==3.0.1
+pandas==2.3.0
+
+# Environment and configuration
+python-dotenv==1.0.0
+
+# Utilities
+requests==2.31.0
+numpy==1.24.3 
