@@ -7,7 +7,7 @@ const About = () => {
   return (
     <Layout>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-patent-blue mb-2">
+                    <h1 className="text-2xl font-bold text-blue-600 mb-2">
           About Patent Insight Agent
         </h1>
         <p className="text-gray-600">

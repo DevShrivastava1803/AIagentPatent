@@ -84,7 +84,7 @@ export default function PatentSummary({
             <div className="space-y-3">
               {recommendations.map((rec, i) => (
                 <div key={i} className="flex items-start gap-3 p-3 bg-blue-50 rounded-md">
-                  <Info className="h-5 w-5 text-patent-blue mt-0.5" />
+                  <Info className="h-5 w-5 text-blue-600 mt-0.5" />
                   <p className="text-sm text-gray-700">{rec}</p>
                 </div>
               ))}

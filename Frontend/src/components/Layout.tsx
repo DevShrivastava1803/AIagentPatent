@@ -15,7 +15,7 @@ const Layout = ({ children }: LayoutProps) => {
         <main className="flex-1 p-6">
           <div className="flex items-center mb-6">
             <SidebarTrigger />
-            <h1 className="text-2xl font-bold text-patent-blue ml-2">Patent Insight Agent</h1>
+            <h1 className="text-2xl font-bold text-blue-600 ml-2">Patent Insight Agent</h1>
           </div>
           {children}
         </main>

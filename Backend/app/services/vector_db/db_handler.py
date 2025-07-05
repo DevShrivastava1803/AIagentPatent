@@ -23,7 +23,7 @@ from langchain_chroma import Chroma
 
 # vector_db/db_handler.py
 
-CHROMA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "chroma_db"))
+CHROMA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "chroma_db"))
 
 PROMPT_TEMPLATE = """
 Answer the question based only on the following context:
@@ -35,23 +35,38 @@ Answer the question based only on the following context:
 Answer the question based on the above context: {question}
 """
 
-def query_vector_db(query_text: str):
+def query_vector_db(query_text: str, document_id: str = None):
     # Set up ChromaDB with embedding
     embedding_function = get_embedding_function()
     db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
 
-    # Similarity search
-    results = db.similarity_search_with_score(query_text, k=5)
-    print("🧪 Test query:", query_text)
-    print("🧠 Embedding function:", embedding_function)
-    print("🔎 Raw Chroma results:", results)
+    # Similarity search with document filtering if provided
+    if document_id:
+        # URL decode the document_id to handle special characters
+        import urllib.parse
+        decoded_document_id = urllib.parse.unquote(document_id)
+        print(f"🔍 Searching within document: '{decoded_document_id}'")
+        
+        # Filter by the specific document
+        results = db.similarity_search_with_score(
+            query_text, 
+            k=5,
+            filter={"filename_base": decoded_document_id}
+        )
+    else:
+        # General search across all documents
+        print(f"🔍 Searching across all documents")
+        results = db.similarity_search_with_score(query_text, k=5)
 
     if not results:
-        print("⚠️ No results found in ChromaDB for the query.")
+        print("⚠️ No relevant information found.")
         return {
             "answer": "No relevant information found in the database.",
             "sources": []
         }
+    
+    print(f"🤖 Generating AI response...")
+    
     # Prepare context
     context_text = "\n\n---\n\n".join([doc.page_content for doc, _ in results])
 
@@ -62,9 +77,6 @@ def query_vector_db(query_text: str):
     # Generate answer using Gemini
     model = GoogleGenerativeAI(model="models/gemini-2.0-flash")
     response_text = model.invoke(prompt)
-
-    print("==== Prompt to Gemini ====")
-    print(prompt)
 
     # Extract source IDs
     sources = [doc.metadata.get("id", "Unknown") for doc, _ in results]

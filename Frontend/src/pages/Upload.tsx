@@ -6,7 +6,7 @@ import FileUpload from "@/components/FileUpload";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { FileText, AlertCircle, Clock } from "lucide-react";
-import { Steps } from "@/components/Steps";
+import Steps from "@/components/Steps";
 
 const Upload = () => {
   const navigate = useNavigate();
@@ -50,7 +50,7 @@ const Upload = () => {
     <Layout>
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-patent-blue mb-2">
+                      <h1 className="text-2xl font-bold text-blue-600 mb-2">
             Patent Document Upload
           </h1>
           <p className="text-gray-600">
@@ -75,7 +75,7 @@ const Upload = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
                     <div className="flex items-center gap-3">
-                      <FileText className="h-5 w-5 text-patent-blue" />
+                      <FileText className="h-5 w-5 text-blue-600" />
                       <div>
                         <p className="font-medium">{processedFile.name}</p>
                         <p className="text-xs text-gray-500">
@@ -83,7 +83,7 @@ const Upload = () => {
                         </p>
                       </div>
                     </div>
-                    <div className="bg-patent-blue-100 text-patent-blue text-xs font-medium px-2 py-1 rounded">
+                    <div className="bg-blue-100 text-blue-600 text-xs font-medium px-2 py-1 rounded">
                       {currentStep === 1 && "Pending"}
                       {currentStep === 2 && "Processing..."}
                       {currentStep === 3 && "Complete"}
@@ -95,7 +95,7 @@ const Upload = () => {
                       <Separator className="my-4" />
                       <div className="space-y-3">
                         <div className="flex items-center gap-3">
-                          <Clock className="h-5 w-5 text-patent-blue" />
+                          <Clock className="h-5 w-5 text-blue-600" />
                           <div>
                             <p className="font-medium">Text Extraction</p>
                             <p className="text-xs text-gray-500">
@@ -104,7 +104,7 @@ const Upload = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Clock className="h-5 w-5 text-patent-blue" />
+                          <Clock className="h-5 w-5 text-blue-600" />
                           <div>
                             <p className="font-medium">Embedding Generation</p>
                             <p className="text-xs text-gray-500">
@@ -113,7 +113,7 @@ const Upload = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Clock className="h-5 w-5 text-patent-blue" />
+                          <Clock className="h-5 w-5 text-blue-600" />
                           <div>
                             <p className="font-medium">Similar Patent Search</p>
                             <p className="text-xs text-gray-500">
@@ -122,7 +122,7 @@ const Upload = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Clock className="h-5 w-5 text-patent-blue" />
+                          <Clock className="h-5 w-5 text-blue-600" />
                           <div>
                             <p className="font-medium">Analysis Generation</p>
                             <p className="text-xs text-gray-500">

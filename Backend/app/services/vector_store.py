@@ -1,7 +1,12 @@
 import os
-import pandas as pd
+try:
+    import pandas as pd
+except ImportError:
+    print("pandas not installed. Please install it with: pip install pandas")
+    exit(1)
+
 from chromadb import PersistentClient
-from app.services.get_embedding_function import get_embedding_function # Added
+from app.services.get_embedding_function import get_embedding_function
 
 # Step 1: Path to your dataset
 data_dir = "C:/Users/ishak/OneDrive/Desktop/data" # This should be parameterized or moved to config
@@ -43,7 +48,7 @@ client = PersistentClient(path=CHROMA_DB_PATH)
 # e.g., "patent_data" or the default collection name used by ChromaConnector.
 # ChromaConnector uses "langchain" by default if not specified. Let's use a specific name.
 COLLECTION_NAME = "patent_data"
-collection = client.get_or_create_collection(name=COLLECTION_NAME, embedding_function=embedding_fn) # Pass embedding function here for on-the-fly query embedding if needed by Chroma
+collection = client.get_or_create_collection(name=COLLECTION_NAME)  # Don't pass embedding function to ChromaDB
 
 
 batch_size = 5000 # ChromaDB's default max batch size is large, but explicit batching is safer.
@@ -70,23 +75,11 @@ for start in range(0, len(texts), batch_size):
 
     collection.add(
         documents=current_batch_texts,
-        embeddings=current_batch_embeddings, # Pre-computed embeddings
+        embeddings=current_batch_embeddings,  # type: ignore
         ids=current_batch_ids,
-        metadatas=current_batch_metadatas
+        metadatas=current_batch_metadatas  # type: ignore
     )
 
 # Verify collection count
 print(f"Collection '{COLLECTION_NAME}' now has {collection.count()} documents.")
-print("✅ All data has been stored in ChromaDB!")
-            {
-                "source_file": combined_df["source_file"].iloc[i],
-                "title": combined_df["Title"].iloc[i],
-                "date": combined_df["Application Date"].iloc[i],
-                "assignee": combined_df["Applicant Name"].iloc[i]
-            }
-            for i in range(start, end)
-        ]
-    )
-
-
 print("✅ All data has been stored in ChromaDB!")

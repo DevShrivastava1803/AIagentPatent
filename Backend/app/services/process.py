@@ -47,35 +47,29 @@ def process_pdf_to_chroma(pdf_filename: str):
     db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
 
     chunks_with_ids = calculate_chunk_ids(chunks)
-    for chunk in chunks_with_ids:
-     print("📄 ID:", chunk.metadata["id"])
-     print("📄 Content Preview:", chunk.page_content[:150])
-     print("----------")
-
+    
     # Get existing IDs to avoid duplicates
     existing_ids = set(db.get(include=[])["ids"])
     new_chunks = []
-    print(f"🔍 Total chunks after splitting: {len(chunks)}")
+    print(f"📄 Processing {len(chunks)} document chunks...")
 
     for chunk in chunks_with_ids:
-
         if chunk.metadata["id"] not in existing_ids:
             new_chunks.append({
                 "page_content": chunk.page_content,
                 "metadata": chunk.metadata
             })
-        print("📄 Chunk:", chunk.metadata["id"], chunk.page_content[:100])
 
     if new_chunks:
-        print(f"🆕 Adding {len(new_chunks)} new chunks to ChromaDB...")
+        print(f"💾 Storing {len(new_chunks)} new chunks in database...")
         db.add_texts(
             texts=[chunk["page_content"] for chunk in new_chunks],
             metadatas=[chunk["metadata"] for chunk in new_chunks],
             ids=[chunk["metadata"]["id"] for chunk in new_chunks]
         )
-        print("✅ ChromaDB updated.")
+        print("✅ Document processed successfully!")
     else:
-        print("✔️ No new chunks to add. ChromaDB is up-to-date.")
+        print("✅ Document already exists in database.")
 
     # Return the basename of the PDF file, which can serve as a document_id
     return os.path.basename(pdf_filename)

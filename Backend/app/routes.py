@@ -1,6 +1,7 @@
 # routes.py
 
 import os
+import traceback
 from flask import Blueprint, request, jsonify
 from app.services.process import process_pdf_to_chroma
 from app.services.vector_db.db_handler import query_vector_db
@@ -18,24 +19,28 @@ def analyze(document_id: str): # Added document_id parameter
         if not document_id:
             return jsonify({"error": "Document ID is required."}), 400
 
+        print(f"📊 Starting analysis for: {document_id}")
         # Pass document_id to analyze_patent service function
         analysis_result_dict = analyze_patent(document_id)
 
         if not analysis_result_dict:
             return jsonify({"error": f"Analysis not found or failed for document ID: {document_id}"}), 404
 
-        # The analyze_patent function is expected to return a dict with "patent" and "similarPatents" keys
-        # if successful, or None if not. The frontend expects this structure.
+        print("✅ Analysis completed successfully")
         return jsonify(analysis_result_dict)
 
     except Exception as e:
-        print(f"Analysis error for document {document_id}: {e}")
-        # Log traceback e.g. import traceback; traceback.print_exc()
-        return jsonify({"error": "Internal server error during analysis."}), 500
+        print(f"❌ Analysis error: {e}")
+        return jsonify({"error": f"Internal server error during analysis: {str(e)}"}), 500
 
 
-@routes.route('/upload', methods=['POST'])
+@routes.route('/upload', methods=['GET', 'POST'])
 def upload():
+    if request.method == 'GET':
+        # Handle GET request (frontend navigation)
+        return jsonify({"message": "Upload endpoint ready"}), 200
+    
+    # Handle POST request (file upload)
     file = request.files.get("file")
     
     if not file or not file.filename: # Ensure filename exists
@@ -48,70 +53,46 @@ def upload():
     file.save(file_path)
 
     try:
+        print(f"📤 Processing upload: {file.filename}")
         # Call the processing logic and get the document_id (filename)
         document_id = process_pdf_to_chroma(file_path)
+        print(f"✅ Upload complete: {document_id}")
         return jsonify({
             "message": "PDF uploaded and processed successfully.",
             "document_id": document_id
         })
     except FileNotFoundError as e:
-        print(f"Upload processing error - File not found: {e}")
+        print(f"❌ File not found: {e}")
         return jsonify({"error": f"File processing error: {str(e)}"}), 400
     except Exception as e:
-        print(f"Upload processing error: {e}")
-        # Log traceback
+        print(f"❌ Processing error: {e}")
         return jsonify({"error": "Server error during file processing."}), 500
 
 @routes.route('/query', methods=['POST'])
 def query():
     data = request.get_json()
     question = data.get("question")
+    document_id = data.get("document_id")  # Get document context if provided
 
     if not question:
         return jsonify({"error": "No question provided."}), 400
 
     try:
-        # 1. Query the vector database for relevant document chunks
-        # Assuming query_vector_db returns a list of dicts with 'page_content' and 'metadata'
-        # And metadata might contain 'id', 'title', or 'source_file'
-        retrieved_chunks = query_vector_db(question, top_k=3) # Get top 3 chunks
-
-        if not retrieved_chunks:
+        print(f"💬 Query: {question[:50]}{'...' if len(question) > 50 else ''}")
+        # Query the vector database with document context if available
+        result = query_vector_db(question, document_id)
+        
+        if not result or not result.get('answer'):
             return jsonify({"answer": "I couldn't find any relevant information in the documents.", "sources": []})
 
-        # 2. Prepare context for the LLM
-        context_parts = []
-        sources = set() # Use a set to avoid duplicate source identifiers
-        for i, chunk in enumerate(retrieved_chunks):
-            context_parts.append(f"Context Chunk {i+1}:\n{chunk.get('page_content', '')}")
-            # Try to get a source identifier from metadata
-            source_id = chunk.get('metadata', {}).get('title') or \
-                        chunk.get('metadata', {}).get('id') or \
-                        chunk.get('metadata', {}).get('source_file') or \
-                        f"Chunk {i+1}"
-            sources.add(str(source_id))
-
-        context_str = "\n\n".join(context_parts)
-
-        # 3. Construct prompt for LLM
-        prompt = f"""Based on the following context, please answer the question.
-Context:
-{context_str}
-
-Question: {question}
-
-Answer:"""
-
-        # 4. Generate answer using the LLM
-        # analysis_model is the gemini-pro model from analysis_service
-        response = analysis_model.generate_content(prompt)
-        answer = response.text.strip()
-
-        return jsonify({"answer": answer, "sources": sorted(list(sources))})
+        print("✅ Query completed successfully")
+        return jsonify({
+            "answer": result['answer'], 
+            "sources": result.get('sources', [])
+        })
 
     except Exception as e:
-        print(f"Error in /query endpoint: {e}")
-        # Consider logging the full traceback here
-        return jsonify({"error": "An error occurred while processing your question."}), 500
+        print(f"❌ Query error: {e}")
+        return jsonify({"error": f"An error occurred while processing your question: {str(e)}"}), 500
 
 

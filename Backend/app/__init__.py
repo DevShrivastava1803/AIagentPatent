@@ -14,7 +14,7 @@ load_dotenv()
 from .routes import routes  # Import the routes from routes.py
 
 app = Flask(__name__)
-CORS(app)  # Allow requests from your Vite app (localhost:5173 or other configured frontend port)
+CORS(app, origins=["http://localhost:8080", "http://localhost:5173", "http://192.168.10.35:8081", "http://localhost:8081"])  # Allow requests from your Vite app
 
 # Register the blueprint for routes
 app.register_blueprint(routes)
@@ -24,8 +24,11 @@ app.register_blueprint(routes)
 
 
 if __name__ == "__main__":
-    # Ensure GOOGLE_API_KEY is loaded before running
+    # Check for GOOGLE_API_KEY but don't exit if missing
     if not os.environ.get("GOOGLE_API_KEY"):
-        print("ERROR: GOOGLE_API_KEY not found in environment. Please set it in .env file.")
+        print("⚠️  WARNING: GOOGLE_API_KEY not found in environment. AI features will be limited.")
+        print("Create a .env file in the Backend directory with: GOOGLE_API_KEY=your_api_key_here")
     else:
-        app.run(debug=True)
+        print("✅ GOOGLE_API_KEY found in environment")
+    
+    app.run(debug=True, host="0.0.0.0", port=5000)

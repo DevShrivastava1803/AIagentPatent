@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Upload, FileUp, CheckCircle, AlertCircle, X, FileText } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 
 interface FileUploadProps {
@@ -48,20 +48,32 @@ export default function FileUpload({ onFileProcessed }: FileUploadProps) {
   // Validate and set the selected file
   const validateAndSetFile = (file: File) => {
     // Check if the file is a PDF
-    if (file.type === "application/pdf") {
-      setFile(file);
-      setUploadStatus("idle");
-      toast({
-        title: "File selected",
-        description: `Selected ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`,
-      });
-    } else {
+    if (file.type !== "application/pdf") {
       toast({
         variant: "destructive",
         title: "Invalid file format",
         description: "Please upload a PDF file.",
       });
+      return;
     }
+    
+    // Check file size (max 50MB)
+    const maxSize = 50 * 1024 * 1024; // 50MB in bytes
+    if (file.size > maxSize) {
+      toast({
+        variant: "destructive",
+        title: "File too large",
+        description: "Please upload a file smaller than 50MB.",
+      });
+      return;
+    }
+    
+    setFile(file);
+    setUploadStatus("idle");
+    toast({
+      title: "File selected",
+      description: `Selected ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`,
+    });
   };
 
   // Handle file upload
@@ -111,32 +123,27 @@ export default function FileUpload({ onFileProcessed }: FileUploadProps) {
           description: "Could not get document identifier from the server.",
         });
       }
-    } catch (error: any) { // Added type annotation for error
+    } catch (error: unknown) {
       setUploadStatus("error");
       let errorMsg = "An error occurred during the upload. Please try again.";
-      if (error.response && error.response.data && error.response.data.error) {
-        errorMsg = error.response.data.error;
-      } else if (error.message) {
+      
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number; data?: { error?: string } } };
+        if (axiosError.response?.status === 413) {
+          errorMsg = "File too large. Please upload a smaller file.";
+        } else if (axiosError.response?.status === 415) {
+          errorMsg = "Invalid file format. Please upload a PDF file.";
+        } else if (axiosError.response?.data?.error) {
+          errorMsg = axiosError.response.data.error;
+        }
+      } else if (error instanceof Error) {
         errorMsg = error.message;
       }
+      
       toast({
         variant: "destructive",
         title: "Upload failed",
         description: errorMsg,
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-        title: "Upload complete",
-        description: `Your patent file has been successfully processed.`,
-      });
-    } catch (error) {
-      setUploadStatus("error");
-      toast({
-        variant: "destructive",
-        title: "Upload failed",
-        description: "An error occurred during the upload. Please try again.",
       });
     } finally {
       setIsUploading(false);
@@ -163,8 +170,8 @@ export default function FileUpload({ onFileProcessed }: FileUploadProps) {
           onDrop={handleDrop}
         >
           <div className="flex flex-col items-center justify-center space-y-4">
-            <div className="bg-patent-blue/10 p-4 rounded-full">
-              <Upload className="h-8 w-8 text-patent-blue" />
+            <div className="bg-blue-100 p-4 rounded-full">
+              <Upload className="h-8 w-8 text-blue-600" />
             </div>
             <div>
               <h3 className="text-lg font-medium">Upload Patent Document</h3>
@@ -202,8 +209,8 @@ export default function FileUpload({ onFileProcessed }: FileUploadProps) {
           <div className="mt-4 border border-gray-200 rounded-md p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <div className="p-2 bg-patent-blue-50 rounded">
-                  <FileText className="h-5 w-5 text-patent-blue" />
+                <div className="p-2 bg-blue-50 rounded">
+                  <FileText className="h-5 w-5 text-blue-600" />
                 </div>
                 <div>
                   <p className="text-sm font-medium">{file.name}</p>

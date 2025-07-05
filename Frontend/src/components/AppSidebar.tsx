@@ -65,7 +65,7 @@ export function AppSidebar() {
       <SidebarHeader>
         <Link to="/" className="flex items-center gap-2 px-2">
           <div className="bg-white p-1 rounded">
-            <FileSearch className="h-6 w-6 text-patent-blue" />
+            <FileSearch className="h-6 w-6 text-blue-600" />
           </div>
           <span className="font-semibold text-white">Patent Insight</span>
         </Link>

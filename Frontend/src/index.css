@@ -108,9 +108,9 @@
 }
 
 .chat-bubble.user {
-  @apply bg-patent-blue text-white self-end;
+  @apply bg-blue-600 text-white self-end;
 }
 
 .chat-bubble.bot {
-  @apply bg-patent-gray-100 text-patent-gray-900 self-start;
+  @apply bg-gray-100 text-gray-900 self-start;
 }

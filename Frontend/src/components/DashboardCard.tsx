@@ -24,7 +24,7 @@ export default function DashboardCard({
           <CardTitle className="text-lg font-medium">{title}</CardTitle>
           {description && <CardDescription>{description}</CardDescription>}
         </div>
-        <div className="p-2 bg-patent-blue-50 rounded-full">{icon}</div>
+        <div className="p-2 bg-blue-50 rounded-full">{icon}</div>
       </CardHeader>
       <CardContent>{children}</CardContent>
     </Card>

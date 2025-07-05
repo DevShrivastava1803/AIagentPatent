@@ -23,12 +23,12 @@ const Index = () => {
   return (
     <Layout>
       <div className="grid gap-6">
-        <section className="bg-patent-blue-100/30 rounded-xl p-6 md:p-10 backdrop-blur-sm">
+                  <section className="bg-blue-50 rounded-xl p-6 md:p-10 backdrop-blur-sm">
           <div className="max-w-4xl">
-            <h1 className="text-3xl md:text-4xl font-bold text-patent-blue mb-4">
+                          <h1 className="text-3xl md:text-4xl font-bold text-blue-600 mb-4">
               Patent Insight Agent
             </h1>
-            <p className="text-lg mb-6 text-patent-blue-800">
+                          <p className="text-lg mb-6 text-blue-800">
               AI-powered patent analysis to streamline your patent review process and identify potential conflicts with existing patents.
             </p>
             <div className="flex flex-wrap gap-4">
@@ -52,7 +52,7 @@ const Index = () => {
           <DashboardCard 
             title="Upload Patent" 
             description="Extract and analyze your patent documents" 
-            icon={<FileUp className="h-5 w-5 text-patent-blue" />}
+                          icon={<FileUp className="h-5 w-5 text-blue-600" />}
           >
             <p className="text-sm mb-4">
               Upload your patent proposal document to extract text, analyze content, and identify potential conflicts.
@@ -65,7 +65,7 @@ const Index = () => {
           <DashboardCard 
             title="Patent Analysis" 
             description="View detailed analysis of your patents" 
-            icon={<BarChart3 className="h-5 w-5 text-patent-blue" />}
+                          icon={<BarChart3 className="h-5 w-5 text-blue-600" />}
           >
             <p className="text-sm mb-4">
               Get insights on novelty scores, similar patents, and potential issues to address in your patent application.
@@ -78,7 +78,7 @@ const Index = () => {
           <DashboardCard 
             title="Chat Assistant" 
             description="Ask questions about your patents" 
-            icon={<MessageSquare className="h-5 w-5 text-patent-blue" />}
+                          icon={<MessageSquare className="h-5 w-5 text-blue-600" />}
           >
             <p className="text-sm mb-4">
               Use our AI assistant to ask specific questions about your patent, prior art, and get personalized recommendations.
@@ -92,15 +92,15 @@ const Index = () => {
         <DashboardCard 
           title="Recent Patents" 
           description="Recently analyzed patent documents" 
-          icon={<Clock className="h-5 w-5 text-patent-blue" />}
+                        icon={<Clock className="h-5 w-5 text-blue-600" />}
           className="col-span-full"
         >
           <div className="space-y-4">
             {recentPatents.map((patent) => (
               <div key={patent.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-md">
                 <div className="flex items-center gap-3">
-                  <div className="bg-patent-blue-50 p-2 rounded">
-                    <FileText className="h-5 w-5 text-patent-blue" />
+                                      <div className="bg-blue-50 p-2 rounded">
+                    <FileText className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
                     <h4 className="text-sm font-medium">{patent.title}</h4>

@@ -1,26 +1,26 @@
 
+import { useParams } from "react-router-dom";
 import Layout from "@/components/Layout";
 import ChatAssistant from "@/components/ChatAssistant";
 
 const Chat = () => {
-  // Mock data for currently loaded patent (if any)
-  const currentPatent = {
-    title: "Quantum Computing Implementation for Neural Networks",
-    id: "US20230123456"
-  };
+  const { document_id } = useParams<{ document_id?: string }>();
 
   return (
     <Layout>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-patent-blue mb-2">
+        <h1 className="text-2xl font-bold text-blue-600 mb-2">
           Patent Assistant
         </h1>
         <p className="text-gray-600">
-          Ask questions about patents, prior art, and get AI-powered recommendations
+          {document_id 
+            ? `Ask questions about your uploaded document: ${decodeURIComponent(document_id)}`
+            : "Ask questions about patents, prior art, and get AI-powered recommendations"
+          }
         </p>
       </div>
 
-      <ChatAssistant patentTitle={currentPatent.title} />
+      <ChatAssistant documentId={document_id} />
     </Layout>
   );
 };

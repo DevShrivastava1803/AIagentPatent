@@ -1,12 +1,16 @@
 # app/services/vector_db/chroma_connector.py
-from chromadb import Client
+import os
+from chromadb import PersistentClient
 from typing import Optional
 
 class ChromaConnector:
-    def __init__(self, collection_name: str = "patent_embeddings"):
-        self.client = Client()
+    def __init__(self, collection_name: str = "langchain"):
+        # Use the same path as process.py
+        CHROMA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "chroma_db"))
+        self.client = PersistentClient(path=CHROMA_PATH)
         self.collection_name = collection_name
-        self.collection = self.client.get_or_create_collection(collection_name)
+        # Use the same collection that langchain_chroma uses (default is "langchain")
+        self.collection = self.client.get_or_create_collection("langchain")
 
     def get_latest_document_text(self) -> Optional[str]:
         try:
@@ -19,7 +23,8 @@ class ChromaConnector:
             return None
 
     def close(self):
-        self.client.close()
+        # ChromaDB client doesn't need explicit closing
+        pass
 
 # This allows both the class and function to be imported
 __all__ = ['ChromaConnector', 'get_latest_document_text']

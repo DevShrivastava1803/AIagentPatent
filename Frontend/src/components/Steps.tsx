@@ -13,7 +13,7 @@ interface StepsProps {
   className?: string;
 }
 
-export function Steps({ steps, currentStep, className }: StepsProps) {
+export default function Steps({ steps, currentStep, className }: StepsProps) {
   return (
     <div className={cn("flex", className)}>
       {steps.map((step, index) => (
@@ -29,9 +29,9 @@ export function Steps({ steps, currentStep, className }: StepsProps) {
               className={cn(
                 "flex h-8 w-8 items-center justify-center rounded-full border-2",
                 step.id < currentStep
-                  ? "border-patent-blue bg-patent-blue text-white"
+                  ? "border-blue-600 bg-blue-600 text-white"
                   : step.id === currentStep
-                  ? "border-patent-blue text-patent-blue"
+                  ? "border-blue-600 text-blue-600"
                   : "border-gray-300 text-gray-400"
               )}
             >
@@ -44,7 +44,7 @@ export function Steps({ steps, currentStep, className }: StepsProps) {
             <span
               className={cn(
                 "mt-2 text-sm font-medium",
-                step.id <= currentStep ? "text-patent-blue" : "text-gray-500"
+                step.id <= currentStep ? "text-blue-600" : "text-gray-500"
               )}
             >
               {step.title}
@@ -55,7 +55,7 @@ export function Steps({ steps, currentStep, className }: StepsProps) {
               className={cn(
                 "h-[2px] w-full",
                 step.id < currentStep
-                  ? "bg-patent-blue"
+                  ? "bg-blue-600"
                   : "bg-gray-300"
               )}
             />

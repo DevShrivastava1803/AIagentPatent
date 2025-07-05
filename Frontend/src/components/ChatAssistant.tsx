@@ -14,15 +14,15 @@ interface Message {
 }
 
 interface ChatAssistantProps {
-  readonly patentTitle?: string;
+  readonly documentId?: string;
 }
 
-export default function ChatAssistant({ patentTitle }: ChatAssistantProps) {
+export default function ChatAssistant({ documentId }: ChatAssistantProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      content: patentTitle
-        ? `Hello! I'm your patent assistant. I'm here to answer questions about "${patentTitle}". What would you like to know?`
+      content: documentId
+        ? `Hello! I'm your patent assistant. I'm here to answer questions about your uploaded document: "${decodeURIComponent(documentId)}". What would you like to know about it?`
         : "Hello! I'm your patent assistant. Please upload a patent document first, or ask me general questions about patents and intellectual property.",
       role: "assistant",
       timestamp: new Date(),
@@ -54,12 +54,15 @@ export default function ChatAssistant({ patentTitle }: ChatAssistantProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ question: input }),
+        body: JSON.stringify({ 
+          question: input,
+          document_id: documentId // Include document context if available
+        }),
       });
   
       const data = await response.json();
   
-      if (data && data.answer) {
+      if (data?.answer) {
         // Add assistant message with answer
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
@@ -89,11 +92,24 @@ export default function ChatAssistant({ patentTitle }: ChatAssistantProps) {
         };
         setMessages((prev) => [...prev, botMessage]);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error fetching answer:", error);
+      let errorMessage = "Something went wrong. Please try again later.";
+      
+      if (error && typeof error === 'object' && 'response' in error) {
+        const fetchError = error as { response?: { status?: number } };
+        if (fetchError.response?.status === 404) {
+          errorMessage = "No relevant information found. Please try a different question.";
+        } else if (fetchError.response?.status === 500) {
+          errorMessage = "Server error. Please try again later.";
+        }
+      } else if (error instanceof Error) {
+        errorMessage = `Error: ${error.message}`;
+      }
+      
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "Something went wrong. Please try again later.",
+        content: errorMessage,
         role: "assistant",
         timestamp: new Date(),
       };
@@ -116,11 +132,11 @@ export default function ChatAssistant({ patentTitle }: ChatAssistantProps) {
     <Card className="flex flex-col h-[calc(100vh-180px)]">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Bot className="h-5 w-5 text-patent-blue" />
+          <Bot className="h-5 w-5 text-blue-600" />
           Patent Assistant
         </CardTitle>
         <CardDescription>
-          Ask questions about patents, prior art, or get recommendations
+          Ask questions about patents, prior art, or get recommendations. I can help with patent analysis, prior art searches, and technical explanations.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-grow overflow-hidden p-0">
@@ -143,26 +159,41 @@ export default function ChatAssistant({ patentTitle }: ChatAssistantProps) {
                 </div>
                 <p>{message.content}</p>
                 {message.role === "assistant" && message.sources && message.sources.length > 0 && (
-                  <p className="mt-1 text-xs text-gray-500">
-                    Sources: {message.sources.join(", ")}
-                  </p>
+                  <div className="mt-2 p-2 bg-blue-50 rounded-md">
+                    <p className="text-xs text-blue-700 font-medium mb-1">📚 Sources:</p>
+                    <div className="text-xs text-blue-600">
+                      {message.sources.map((source, index) => (
+                        <div key={index} className="flex items-center gap-1">
+                          <span>•</span>
+                          <span>{source}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
             ))}
             {isLoading && (
-              <div className="chat-bubble bot animate-pulse-slow">
+              <div className="chat-bubble bot">
                 <div className="flex items-center gap-2 mb-1">
                   <Bot className="h-4 w-4" />
                   <span className="text-xs opacity-70">Assistant</span>
                 </div>
-                <p>Thinking...</p>
+                <div className="flex items-center gap-1">
+                  <span>Thinking</span>
+                  <div className="flex gap-1">
+                    <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                    <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
         </ScrollArea>
       </CardContent>
       <CardFooter className="border-t p-4">
-        {!patentTitle && (
+        {!documentId && (
           <div className="bg-orange-50 p-3 rounded-md mb-3 w-full flex items-start gap-2">
             <AlertCircle className="h-5 w-5 text-orange-500 mt-0.5" />
             <p className="text-sm text-orange-800">
@@ -170,11 +201,48 @@ export default function ChatAssistant({ patentTitle }: ChatAssistantProps) {
             </p>
           </div>
         )}
+        
+        {/* Suggested Questions */}
+        {messages.length === 1 && (
+          <div className="mb-4">
+            <p className="text-sm text-gray-600 mb-2">Try asking:</p>
+            <div className="flex flex-wrap gap-2">
+              {documentId ? [
+                "What is this document about?",
+                "What are the main claims in this document?",
+                "What technologies are mentioned?",
+                "What are the key innovations described?",
+                "Summarize the technical approach"
+              ] : [
+                "What is RPA technology?",
+                "How does machine learning improve patent analysis?",
+                "What are the key components of a patent?",
+                "Explain the patent filing process"
+              ].map((question, index) => (
+                <button
+                  key={index}
+                  onClick={() => setInput(question)}
+                  className="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full hover:bg-blue-100 transition-colors"
+                >
+                  {question}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         <form onSubmit={handleSendMessage} className="flex w-full gap-2">
           <Input
-            placeholder="Ask a question about patents..."
+            placeholder="Ask a question about patents... (Press Enter to send)"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (input.trim() && !isLoading) {
+                  handleSendMessage(e as any);
+                }
+              }
+            }}
             className="flex-grow"
             disabled={isLoading}
           />
