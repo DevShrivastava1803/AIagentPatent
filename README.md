@@ -224,5 +224,10 @@ For support and questions:
 - Review the API documentation
 
 ---
+## Screenshots
+<img width="1904" height="876" alt="Screenshot 2025-05-14 223857" src="https://github.com/user-attachments/assets/84bf8297-d19e-4fd9-b711-6bd51417a0cc" />
 
-**Built with ❤️ using modern AI and web technologies** 
+<img width="1897" height="851" alt="Screenshot 2025-05-14 224144" src="https://github.com/user-attachments/assets/0ca68ced-7b7e-4fc9-b004-ed829d4ff306" />
+
+<img width="1897" height="865" alt="Screenshot 2025-05-14 223933" src="https://github.com/user-attachments/assets/41375bf0-17ec-4089-9471-c78c00b0405b" />
+
